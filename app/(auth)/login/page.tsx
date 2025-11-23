@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod'; // Cần cài @hookform/resolvers
+import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -32,22 +32,30 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     try {
-      // API Endpoint 2
-      const res = await api.post('/auth/login', data);
+      // Cập nhật Endpoint: /api/v1/auth/login
+      const res = await api.post('/api/v1/auth/login', data);
       
-      if (res.data.success) {
-        // Lưu token vào localStorage như hướng dẫn trong API Doc
+      // Cập nhật logic check thành công dựa trên errorCode "ER0000"
+      if (res.data?.errorCode === 'ER0000') {
         const { token, user } = res.data.data;
+        
+        // Lưu token và user info
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
         
         toast.success("Đăng nhập thành công");
         
-        // Chuyển hướng về trang chủ hoặc trang quản lý đơn hàng
+        // Chuyển hướng
         router.push('/');
+      } else {
+        // Xử lý trường hợp API trả về 200 nhưng có lỗi nghiệp vụ (sai pass, user bị khóa...)
+        toast.error(res.data?.message || "Đăng nhập thất bại");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Sai tên đăng nhập hoặc mật khẩu");
+      console.error("Login error:", error);
+      // Xử lý lỗi mạng hoặc lỗi server (4xx, 5xx)
+      const msg = error.response?.data?.message || "Sai tên đăng nhập hoặc mật khẩu";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

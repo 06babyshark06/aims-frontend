@@ -13,11 +13,12 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
-// Schema validation: Yêu cầu password min 6 ký tự và confirm password khớp
+// Schema validation
 const registerSchema = z.object({
   username: z.string().min(3, "Tên đăng nhập phải có ít nhất 3 ký tự"),
   email: z.string().email("Email không hợp lệ"),
   fullName: z.string().min(1, "Vui lòng nhập họ tên"),
+  phoneNumber: z.string().min(10, "Số điện thoại phải có ít nhất 10 số"), // Đã thêm validate SĐT
   password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -38,21 +39,27 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     setLoading(true);
     try {
-      // API Endpoint 1: Register User
-      const res = await api.post('/auth/register', {
+      // Cập nhật API Endpoint theo CURL: /api/v1/auth/register
+      const res = await api.post('/api/v1/auth/register', {
         username: data.username,
         email: data.email,
         password: data.password,
         fullName: data.fullName,
-        // phoneNumber: "..." (Optional, có thể thêm trường này nếu muốn)
+        phoneNumber: data.phoneNumber // Đã thêm trường này
       });
 
-      if (res.data.success) {
-        toast.success("Vui lòng đăng nhập để tiếp tục");
+      // Cập nhật logic check success dựa trên response mẫu: errorCode "ER0000"
+      if (res.data.errorCode === 'ER0000') {
+        toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
         router.push('/login');
+      } else {
+        // Trường hợp API trả về 200 nhưng errorCode khác (lỗi nghiệp vụ)
+        toast.error(res.data.message || "Đăng ký thất bại");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Tên đăng nhập hoặc Email đã tồn tại" );
+      console.error(error);
+      const errorMessage = error.response?.data?.message || "Lỗi kết nối đến máy chủ";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -71,6 +78,12 @@ export default function RegisterPage() {
               <Label htmlFor="fullName">Họ và tên</Label>
               <Input id="fullName" placeholder="Nguyễn Văn A" {...register('fullName')} />
               {errors.fullName && <span className="text-red-500 text-xs">{errors.fullName.message}</span>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Số điện thoại</Label>
+              <Input id="phoneNumber" placeholder="0987654321" {...register('phoneNumber')} />
+              {errors.phoneNumber && <span className="text-red-500 text-xs">{errors.phoneNumber.message}</span>}
             </div>
 
             <div className="space-y-2">
