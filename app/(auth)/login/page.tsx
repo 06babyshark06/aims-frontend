@@ -32,10 +32,8 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     try {
-      // Cập nhật Endpoint: /api/v1/auth/login
       const res = await api.post('/api/v1/auth/login', data);
       
-      // Cập nhật logic check thành công dựa trên errorCode "ER0000"
       if (res.data?.errorCode === 'ER0000') {
         const { token, user } = res.data.data;
         

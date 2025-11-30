@@ -5,7 +5,6 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Tự động gắn token nếu có (cho tính năng login sau này)
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('token');

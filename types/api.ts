@@ -8,30 +8,6 @@ export interface User {
   roles: string[];
 }
 
-export interface Product {
-  id: number;
-  barcode: string;
-  title: string;
-  category: string;
-  description: string;
-  currentPrice: number;
-  originalValue: number;
-  quantity: number; // Stock
-  status: string;
-  productType: 'book' | 'cd' | 'dvd' | 'lp';
-  // Thông số vật lý
-  weight?: number;
-  height?: number;
-  width?: number;
-  length?: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
-  data: T;
-  timestamp: string;
-}
 
 export interface PaginatedResponse<T> {
   content: T[];

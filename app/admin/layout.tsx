@@ -21,8 +21,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
 
     const user = JSON.parse(userData);
-    // API Doc: Role có prefix ROLE_
-    if (!user.roles.includes('ROLE_ADMIN') && !user.roles.includes('ROLE_PRODUCT_MANAGER')) {
+    console.log(user);
+    if (!user.roles.includes('ADMIN') && !user.roles.includes('PRODUCT_MANAGER')) {
       alert("Bạn không có quyền truy cập trang này!");
       router.push('/');
       return;
